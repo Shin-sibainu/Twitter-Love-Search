@@ -1,7 +1,9 @@
+// eslint-disable-next-line
 import { Avatar, makeStyles, Typography } from "@material-ui/core";
 import React, { useState } from "react";
 import { Input } from "../components/input/Input";
-import { UseFetch } from "../UseFetch";
+import CircularProgress from "@material-ui/core/CircularProgress";
+//import { UseFetch } from "../UseFetch";
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -15,7 +17,16 @@ const useStyles = makeStyles((theme) => ({
   },
   loadingArea: {
     textAlign: "center",
-    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+  result: {
+    textAlign: "center",
+    marginTop: theme.spacing(5),
+  },
+  avatar: {
+    width: theme.spacing(12),
+    height: theme.spacing(12),
+    margin: theme.spacing(3, 3),
   },
 }));
 
@@ -33,10 +44,10 @@ export const Main = () => {
     setTimeout(() => {
       fetch("http://localhost:8000/data/", {
         method: "GET",
-        dataType: "jsonp",
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
+        dataType: "json",
+        contentType: "application/json",
+        mode: "cors",
+        credentials: "include", // ここを追加。
       })
         .then((response) => {
           return response.json();
@@ -47,7 +58,7 @@ export const Main = () => {
           setPending(false);
         })
         .catch((e) => console.log(e.message));
-    }, 500);
+    }, 1000);
   };
 
   const handleInput = (e) => {
@@ -68,13 +79,26 @@ export const Main = () => {
       </div>
       {isPending && (
         <div className={classes.loadingArea}>
-          <Typography style={{ fontSize: 20 }}>loading...</Typography>
+          <CircularProgress style={{ fontSize: 20, marginTop: "22px" }} />
         </div>
       )}
       {data && (
-        <div>
-          <img src={`https://twitter.com/${data[0].author_name}/photo`} />
-          <div>{data[0].author_name}</div>
+        <div className={classes.result}>
+          <Typography style={{ marginBottom: "12px" }}>
+            {submitText}さんが好きな人は
+          </Typography>
+          <Typography>↓↓↓↓↓↓↓↓↓</Typography>
+          <Avatar
+            src="https://images.dog.ceo/breeds/labrador/n02099712_1436.jpg"
+            style={{ display: "inline-block" }}
+            className={classes.avatar}
+          />
+          <Typography>
+            <a href={`https://twitter.com/${data[0].author_name}`}>
+              {data[0].author_name}
+            </a>
+            さんかもしれません...
+          </Typography>
         </div>
       )}
     </div>
