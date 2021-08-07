@@ -1,4 +1,4 @@
-import { makeStyles, Typography } from "@material-ui/core";
+import { Avatar, makeStyles, Typography } from "@material-ui/core";
 import React, { useState } from "react";
 import { Input } from "../components/input/Input";
 import { UseFetch } from "../UseFetch";
@@ -13,6 +13,10 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(5),
     textAlign: "center",
   },
+  loadingArea: {
+    textAlign: "center",
+    marginTop: theme.spacing(2),
+  },
 }));
 
 export const Main = () => {
@@ -26,16 +30,24 @@ export const Main = () => {
     console.log(submitText);
     setPending(true);
     //ここでAPIを呼び出す処理がしたい。
-    fetch("https://jsonplaceholder.typicode.com/todos/1")
-      .then((response) => {
-        return response.json();
+    setTimeout(() => {
+      fetch("http://localhost:8000/data/", {
+        method: "GET",
+        dataType: "jsonp",
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
       })
-      .then((data) => {
-        console.log(data);
-        setData(data);
-        setPending(false);
-      })
-      .catch((e) => console.log(e.message));
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          console.log(data);
+          setData(data);
+          setPending(false);
+        })
+        .catch((e) => console.log(e.message));
+    }, 500);
   };
 
   const handleInput = (e) => {
@@ -54,8 +66,20 @@ export const Main = () => {
           submitText={submitText}
         />
       </div>
-      {data && <div>{data.title}</div>}
-      {isPending && <div>loading...</div>}
+      {isPending && (
+        <div className={classes.loadingArea}>
+          <Typography style={{ fontSize: 20 }}>loading...</Typography>
+        </div>
+      )}
+      {data && (
+        <div>
+          <img src={`https://twitter.com/${data[0].author_name}/photo`} />
+          <div>{data[0].author_name}</div>
+        </div>
+      )}
     </div>
   );
 };
+
+/* npx json-server --watch db.json --port 8000 */
+/* `https://twitter.com/${data[0].author_name}/photo` */
